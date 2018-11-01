@@ -9,11 +9,13 @@
 import Foundation
 import UIKit
 import MobileCoreServices
+import AVFoundation
 
 // Regif constants
 let frameCount = 16
 let delayTime: Float = 0.2
 let loopConut = 0  // 0 means loop forever
+let frameRate = 15;
 
 extension UIViewController {
     @IBAction func presentVideoOptions(_ sender: UIButton) {
@@ -51,6 +53,17 @@ extension UIViewController {
         // present controller
         self.present(recordVideoController, animated: true, completion: nil)
     }
+    
+    // MARK:  - Utils
+    func pickerController(source: UIImagePickerControllerSourceType) -> UIImagePickerController {
+        let picker = UIImagePickerController()
+        picker.sourceType = source
+        picker.mediaTypes = [kUTTypeMovie as String]
+        picker.allowsEditing = true
+        picker.delegate = self
+        
+        return picker
+    }
 }
 
 // MARK: UINavigationControllerDelegate
@@ -68,13 +81,19 @@ extension UIViewController: UIImagePickerControllerDelegate {
             return
         }
         if mediaType == kUTTypeMovie as String {
-            dismiss(animated: true, completion: nil)
+            
             guard let videoURL = info[UIImagePickerControllerMediaURL] as? NSURL else {
                 return
             }
-            convertVideoToGIF(videoURL: videoURL)
-            
-//            UISaveVideoAtPathToSavedPhotosAlbum(path, nil, nil, nil)
+            let start: NSNumber? = info["_UIImagePickerControllerVideoEditingStart"] as? NSNumber
+            let end: NSNumber? = info["_UIImagePickerControllerVideoEditingEnd"] as? NSNumber
+            var duration: NSNumber?
+            if let end = end, let start = start {
+                duration = NSNumber(value: end.floatValue - start.floatValue)
+            } else {
+                duration = nil
+            }
+            cropVideoToGIF(rawVideoURL: videoURL, start: start, duration: duration)
         }
     }
     
@@ -82,12 +101,53 @@ extension UIViewController: UIImagePickerControllerDelegate {
         dismiss(animated: true, completion: nil)
     }
     
+    func cropVideoToGIF(rawVideoURL: NSURL, start: NSNumber?, duration: NSNumber?) {
+        //Create the AVAsset and AVAssetTrack
+        let videoAsset = AVAsset(url: rawVideoURL as URL)
+        let videoTrack = videoAsset.tracks(withMediaType: AVMediaTypeVideo)[0]
+        
+        // Crop to square
+        let videoComposition = AVMutableVideoComposition()
+        videoComposition.renderSize = CGSize(width: videoTrack.naturalSize.height, height: videoTrack.naturalSize.height)
+        videoComposition.frameDuration = CMTime(seconds: 1, preferredTimescale: 30)
+        
+        let instruction = AVMutableVideoCompositionInstruction()
+        instruction.timeRange = CMTimeRangeMake(kCMTimeZero, CMTimeMakeWithSeconds(60, 30))
+        
+        // rotate to portrait
+        let transformer = AVMutableVideoCompositionLayerInstruction.init(assetTrack: videoTrack)
+        let t1 = CGAffineTransform(translationX: videoTrack.naturalSize.height, y: -(videoTrack.naturalSize.width - videoTrack.naturalSize.height) )
+        let t2 = t1.rotated(by: CGFloat(M_PI_2))
+        let finalTransform = t2
+        transformer.setTransform(finalTransform, at: kCMTimeZero)
+        instruction.layerInstructions = [transformer]
+        videoComposition.instructions = [instruction]
+        
+        // export
+        let exporter = AVAssetExportSession(asset: videoAsset, presetName: AVAssetExportPresetHighestQuality)
+        exporter.videoComposition = videoComposition
+        let path = self.createPath()
+        exporter?.outputURL = NSURL(fileURLWithPath: path)
+        
+    }
+    
     // MARK: GIF conversion methods
-    func convertVideoToGIF(videoURL: NSURL) {
-        let regift = Regift(sourceFileURL: videoURL as URL, frameCount: frameCount, delayTime: delayTime, loopCount: loopConut)
+    func convertVideoToGIF(videoURL: NSURL, start: NSNumber?, duration: NSNumber?) {
+        DispatchQueue.main.async {
+            self.dismiss(animated: true, completion: nil)
+        }
+        
+        let regift: Regift
+        
+        if let start = start, let duration = duration {
+            regift = Regift(sourceFileURL: videoURL as URL, startTime: start.floatValue, duration: duration.floatValue, frameRate: frameRate, loopCount: loopConut)
+        } else {
+            regift = Regift(sourceFileURL: videoURL as URL, frameCount: frameCount, delayTime: delayTime, loopCount: loopConut)
+        }
         guard let gifURL = regift.createGif(), let url = gifURL as? NSURL else {
             return
         }
+        
         let gif = Gif(url: url, videoURL: videoURL, caption: nil)
         displayGIF(gif: gif)
     }
