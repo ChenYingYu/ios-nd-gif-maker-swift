@@ -16,7 +16,31 @@ let delayTime: Float = 0.2
 let loopConut = 0  // 0 means loop forever
 
 extension UIViewController {
-    @IBAction func launchVideoCamera(sender: AnyObject) {
+    @IBAction func presentVideoOptions(_ sender: UIButton) {
+        
+        if !UIImagePickerController.isSourceTypeAvailable(UIImagePickerControllerSourceType.camera) {
+            // launchPthotoLibrary
+        } else {
+            
+            let newGifActionSheet = UIAlertController(title: "Create new GIF", message: nil, preferredStyle: UIAlertControllerStyle.actionSheet)
+            let recordVideo = UIAlertAction(title: "Record a Video", style: UIAlertActionStyle.default) { [weak self] (action) in
+                self?.launchVideoCamera()
+            }
+            let chooseFromExisting = UIAlertAction(title: "Choose from Existing", style: UIAlertActionStyle.default) { [weak self] (action) in
+//                self?.launchPhotoLibrary()
+            }
+            let cancel = UIAlertAction(title: "Cancel", style: UIAlertActionStyle.cancel, handler: nil)
+            newGifActionSheet.addAction(recordVideo)
+            newGifActionSheet.addAction(chooseFromExisting)
+            newGifActionSheet.addAction(cancel)
+            
+            present(newGifActionSheet, animated: true, completion: nil)
+            let pinkColor = UIColor(red: 255.0/255.0, green: 65.0/255.0, blue: 112.0/255.0, alpha: 1.0)
+            newGifActionSheet.view.tintColor = pinkColor
+        }
+    }
+    
+    func launchVideoCamera() {
         // create imagePicker
         let recordVideoController = UIImagePickerController()
         // set properties: sourcetype, mediatypes, allowsEditing, delegate
