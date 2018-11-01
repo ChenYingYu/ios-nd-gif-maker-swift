@@ -24,3 +24,15 @@ class GifEditorViewController: UIViewController {
         // Do any additional setup after loading the view.
     }
 }
+
+extension GifEditorViewController: UITextFieldDelegate {
+    // MARK: UITextFieldDelegate
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        textField.text = ""
+    }
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
+    }
+}
