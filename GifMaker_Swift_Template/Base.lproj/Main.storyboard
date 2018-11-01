@@ -205,10 +205,13 @@
                     <navigationItem key="navigationItem" title="Title" id="98w-hN-q9u">
                         <barButtonItem key="rightBarButtonItem" title="Next" id="kvy-5V-EgW">
                             <color key="tintColor" red="1" green="0.25490196079999999" blue="0.43921568630000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                            <connections>
+                                <action selector="presentPreview:" destination="gN0-HT-VRx" id="jdK-Lh-XPd"/>
+                            </connections>
                         </barButtonItem>
                     </navigationItem>
                     <connections>
-                        <outlet property="captionnTextField" destination="Hx5-Iw-gBr" id="N1Y-Bu-jyK"/>
+                        <outlet property="captionTextField" destination="Hx5-Iw-gBr" id="N1Y-Bu-jyK"/>
                         <outlet property="gifImageView" destination="Idg-S9-dYE" id="cK4-sT-Qkc"/>
                     </connections>
                 </viewController>
@@ -271,6 +274,9 @@
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Preview" id="SWX-N6-oaS"/>
+                    <connections>
+                        <outlet property="previewImageView" destination="HQu-c2-zTO" id="EWu-mx-xTZ"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="KCC-tI-bRp" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>

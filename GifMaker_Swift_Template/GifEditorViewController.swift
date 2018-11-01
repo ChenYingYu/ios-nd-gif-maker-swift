@@ -11,9 +11,29 @@ import UIKit
 class GifEditorViewController: UIViewController {
 
     @IBOutlet weak var gifImageView: UIImageView!
-    @IBOutlet weak var captionnTextField: UITextField!
+    @IBOutlet weak var captionTextField: UITextField!
     var gif: Gif?
-
+    
+    @IBAction func presentPreview(_ sender: Any) {
+        guard let previewVC = storyboard?.instantiateViewController(withIdentifier: "PreviewViewController") as? PreviewViewController else {
+            return
+        }
+        self.gif?.caption = self.captionTextField.text
+        guard let sourceFileURL = self.gif?.videoURL else {
+            return
+        }
+        let regfit = Regift(sourceFileURL: sourceFileURL as URL, destinationFileURL: nil, frameCount: frameCount, delayTime: delayTime, loopCount: loopConut)
+        let captionFont = self.captionTextField.font
+        guard let gifURL = regfit.createGif(self.captionTextField.text, font: captionFont) else {
+            return
+        }
+        let newGif = Gif(url: gifURL as NSURL, videoURL: sourceFileURL, caption: self.captionTextField.text)
+        previewVC.gif = newGif
+        
+        self.navigationController?.present(previewVC, animated: true, completion: nil)
+        
+    }
+    
     override func viewWillAppear(_ animated: Bool) {
         gifImageView.image = gif?.gifImage
         subscribeToKeyboardNotifications()

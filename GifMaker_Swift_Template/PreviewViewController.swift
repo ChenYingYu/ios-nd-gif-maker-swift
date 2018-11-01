@@ -9,6 +9,13 @@
 import UIKit
 
 class PreviewViewController: UIViewController {
+    
+    @IBOutlet weak var previewImageView: UIImageView!
+    var gif: Gif?
+    
+    override func viewWillAppear(_ animated: Bool) {
+        previewImageView.image = gif?.gifImage
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
