@@ -27,7 +27,7 @@ class GifEditorViewController: UIViewController {
         guard let gifURL = regfit.createGif(self.captionTextField.text, font: captionFont) else {
             return
         }
-        let newGif = Gif(url: gifURL as NSURL, videoURL: sourceFileURL, caption: self.captionTextField.text)
+        let newGif = Gif(url: gifURL, videoURL: sourceFileURL, caption: self.captionTextField.text)
         previewVC.gif = newGif
         
         self.navigationController?.present(previewVC, animated: true, completion: nil)

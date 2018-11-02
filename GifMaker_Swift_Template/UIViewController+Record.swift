@@ -48,7 +48,7 @@ extension UIViewController {
         // set properties: sourcetype, mediatypes, allowsEditing, delegate
         recordVideoController.sourceType = UIImagePickerControllerSourceType.camera
         recordVideoController.mediaTypes = [kUTTypeMovie as String]
-        recordVideoController.allowsEditing = false
+        recordVideoController.allowsEditing = true
         recordVideoController.delegate = self
         // present controller
         self.present(recordVideoController, animated: true, completion: nil)
@@ -82,7 +82,7 @@ extension UIViewController: UIImagePickerControllerDelegate {
         }
         if mediaType == kUTTypeMovie as String {
             
-            guard let videoURL = info[UIImagePickerControllerMediaURL] as? NSURL else {
+            guard let videoURL = info[UIImagePickerControllerMediaURL] as? URL else {
                 return
             }
             let start: NSNumber? = info["_UIImagePickerControllerVideoEditingStart"] as? NSNumber
@@ -93,7 +93,7 @@ extension UIViewController: UIImagePickerControllerDelegate {
             } else {
                 duration = nil
             }
-            cropVideoToGIF(rawVideoURL: videoURL, start: start, duration: duration)
+            cropVideoToSquare(rawVideoURL: videoURL, start: start, duration: duration)
         }
     }
     
@@ -101,22 +101,22 @@ extension UIViewController: UIImagePickerControllerDelegate {
         dismiss(animated: true, completion: nil)
     }
     
-    func cropVideoToGIF(rawVideoURL: NSURL, start: NSNumber?, duration: NSNumber?) {
+    func cropVideoToSquare(rawVideoURL: URL, start: NSNumber?, duration: NSNumber?) {
         //Create the AVAsset and AVAssetTrack
-        let videoAsset = AVAsset(url: rawVideoURL as URL)
+        let videoAsset = AVAsset(url: rawVideoURL)
         let videoTrack = videoAsset.tracks(withMediaType: AVMediaTypeVideo)[0]
         
         // Crop to square
         let videoComposition = AVMutableVideoComposition()
         videoComposition.renderSize = CGSize(width: videoTrack.naturalSize.height, height: videoTrack.naturalSize.height)
-        videoComposition.frameDuration = CMTime(seconds: 1, preferredTimescale: 30)
+        videoComposition.frameDuration = CMTimeMake(1, 30)
         
         let instruction = AVMutableVideoCompositionInstruction()
         instruction.timeRange = CMTimeRangeMake(kCMTimeZero, CMTimeMakeWithSeconds(60, 30))
         
         // rotate to portrait
         let transformer = AVMutableVideoCompositionLayerInstruction.init(assetTrack: videoTrack)
-        let t1 = CGAffineTransform(translationX: videoTrack.naturalSize.height, y: -(videoTrack.naturalSize.width - videoTrack.naturalSize.height) )
+        let t1 = CGAffineTransform(translationX: videoTrack.naturalSize.height, y: (videoTrack.naturalSize.width - videoTrack.naturalSize.height) )
         let t2 = t1.rotated(by: CGFloat(M_PI_2))
         let finalTransform = t2
         transformer.setTransform(finalTransform, at: kCMTimeZero)
@@ -124,15 +124,56 @@ extension UIViewController: UIImagePickerControllerDelegate {
         videoComposition.instructions = [instruction]
         
         // export
-        let exporter = AVAssetExportSession(asset: videoAsset, presetName: AVAssetExportPresetHighestQuality)
+        guard let exporter = AVAssetExportSession(asset: videoAsset, presetName: AVAssetExportPresetHighestQuality) else {
+            return
+        }
         exporter.videoComposition = videoComposition
-        let path = self.createPath()
-        exporter?.outputURL = NSURL(fileURLWithPath: path)
+        let path = createPath()
+        exporter.outputURL = URL(fileURLWithPath: path)
+        exporter.outputFileType = AVFileTypeQuickTimeMovie
+
+        exporter.exportAsynchronously { [weak self] in
+            if let croppedURL = exporter.outputURL {
+                self?.convertVideoToGIF(videoURL: croppedURL, start: start, duration: duration)
+            }
+        }
         
     }
     
+    func createPath() -> String {
+        let paths = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)
+        let documentsDirectory = paths[0]
+        let manager = FileManager()
+        var outputURL = documentsDirectory.appending("/output")
+        do {
+            try manager.createDirectory(atPath: outputURL, withIntermediateDirectories: true, attributes: nil)
+        } catch let error {
+            print(error)
+        }
+        outputURL = outputURL.appending("output.mov")
+        
+        // Remove Existing File
+        do {
+            try manager.removeItem(atPath: outputURL)
+        } catch let error {
+            print(error)
+        }
+        
+        return outputURL
+    }
+    
+    func configureExportSession(_ session: AVAssetExportSession, withOutputURL outputURL: String, startMilliseconds start: Int, endMilliseconds end: Int) -> AVAssetExportSession {
+        
+        session.outputURL = URL(fileURLWithPath: outputURL)
+        session.outputFileType = AVFileTypeQuickTimeMovie
+        let timeRange = CMTimeRangeMake(CMTimeMake(Int64(start), 1000), CMTimeMake(Int64(end - start), 1000))
+        session.timeRange = timeRange
+        
+        return session
+    }
+    
     // MARK: GIF conversion methods
-    func convertVideoToGIF(videoURL: NSURL, start: NSNumber?, duration: NSNumber?) {
+    func convertVideoToGIF(videoURL: URL, start: NSNumber?, duration: NSNumber?) {
         DispatchQueue.main.async {
             self.dismiss(animated: true, completion: nil)
         }
@@ -144,11 +185,11 @@ extension UIViewController: UIImagePickerControllerDelegate {
         } else {
             regift = Regift(sourceFileURL: videoURL as URL, frameCount: frameCount, delayTime: delayTime, loopCount: loopConut)
         }
-        guard let gifURL = regift.createGif(), let url = gifURL as? NSURL else {
+        guard let gifURL = regift.createGif() else {
             return
         }
         
-        let gif = Gif(url: url, videoURL: videoURL, caption: nil)
+        let gif = Gif(url: gifURL, videoURL: videoURL, caption: nil)
         displayGIF(gif: gif)
     }
     

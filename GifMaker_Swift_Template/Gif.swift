@@ -10,13 +10,13 @@ import Foundation
 import UIKit
 
 class Gif {
-    let url: NSURL
+    let url: URL
     var caption: String?
     let gifImage: UIImage?
-    let videoURL: NSURL
+    let videoURL: URL
     var gifData: NSData?
     
-    init(url:NSURL, videoURL:NSURL, caption: String?) {
+    init(url:URL, videoURL:URL, caption: String?) {
         self.url = url
         self.videoURL = videoURL
         self.caption = caption
