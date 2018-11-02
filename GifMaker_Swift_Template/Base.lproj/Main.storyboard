@@ -157,7 +157,7 @@
                     <connections>
                         <outlet property="emptyView" destination="rBY-mr-O59" id="5i1-a0-l29"/>
                         <outlet property="gifCollectionView" destination="hbv-Kk-KXX" id="oO2-jZ-o9q"/>
-                        <segue destination="cB7-Y1-ZFX" kind="show" id="JnB-XY-BLk"/>
+                        <segue destination="gN0-HT-VRx" kind="show" id="ggB-zf-ATN"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="1mO-R1-5Re" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -208,6 +208,7 @@
                             <color key="tintColor" red="1" green="0.25490196079999999" blue="0.43921568630000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                             <connections>
                                 <action selector="presentPreview:" destination="gN0-HT-VRx" id="jdK-Lh-XPd"/>
+                                <segue destination="cB7-Y1-ZFX" kind="show" id="gDG-ql-r6z"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
@@ -263,6 +264,9 @@
                                         <state key="normal" title="CREATE AND SAVE">
                                             <color key="titleColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         </state>
+                                        <connections>
+                                            <action selector="createAndSave:" destination="cB7-Y1-ZFX" eventType="touchUpInside" id="U4s-fO-DAU"/>
+                                        </connections>
                                     </button>
                                 </subviews>
                             </stackView>

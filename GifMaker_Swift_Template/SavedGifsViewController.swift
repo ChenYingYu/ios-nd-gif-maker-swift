@@ -8,7 +8,7 @@
 
 import UIKit
 
-class SavedGifsViewController: UIViewController {
+class SavedGifsViewController: UIViewController, PreviewViewControllerDelegate {
     
     var savedGifs = [Gif]()
     let cellMargin: CGFloat = 12.0
@@ -27,6 +27,10 @@ class SavedGifsViewController: UIViewController {
 
         // Do any additional setup after loading the view.
         setUpCollectionView()
+    }
+    
+    func previewVC(preview: UIViewController, didSaveGif gif: Gif) {
+        savedGifs.append(gif)
     }
 }
 
