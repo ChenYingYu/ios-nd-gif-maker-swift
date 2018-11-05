@@ -8,16 +8,17 @@
 
 import UIKit
 
-class SavedGifsViewController: UIViewController, PreviewViewControllerDelegate {
+class SavedGifsViewController: UIViewController {
     
     var savedGifs = [Gif]()
     let cellMargin: CGFloat = 12.0
+    let previewVC = PreviewViewController()
     @IBOutlet weak var gifCollectionView: UICollectionView!
     @IBOutlet weak var emptyView: UIStackView!
     
     override func viewWillAppear(_ animated: Bool) {
          super.viewWillAppear(true)
-        
+        setUpCollectionView()
         emptyView.isHidden = (savedGifs.count != 0)
         gifCollectionView.reloadData()
     }
@@ -27,10 +28,6 @@ class SavedGifsViewController: UIViewController, PreviewViewControllerDelegate {
 
         // Do any additional setup after loading the view.
         setUpCollectionView()
-    }
-    
-    func previewVC(preview: UIViewController, didSaveGif gif: Gif) {
-        savedGifs.append(gif)
     }
 }
 
@@ -44,8 +41,7 @@ extension SavedGifsViewController: UICollectionViewDelegate, UICollectionViewDat
     // MARK: CollectionView Delegate and Datasource Methods
 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 5
-//            savedGifs.count
+        return savedGifs.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -53,8 +49,8 @@ extension SavedGifsViewController: UICollectionViewDelegate, UICollectionViewDat
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "GifCell", for: indexPath) as? GifCell else {
             return GifCell()
         }
-//        let gif = savedGifs[indexPath.row]
-//        cell.configureGif(gif: gif)
+        let gif = savedGifs[indexPath.row]
+        cell.configureGif(gif: gif)
         return cell
     }
     
@@ -63,5 +59,11 @@ extension SavedGifsViewController: UICollectionViewDelegate, UICollectionViewDat
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         let width = (collectionView.frame.width - (cellMargin * 2.0)) / 2.0
         return CGSize(width: width, height: width)
+    }
+}
+
+extension SavedGifsViewController: PreviewViewControllerDelegate {
+    func previewVC(preview: UIViewController, didSaveGif gif: Gif) {
+        savedGifs.append(gif)
     }
 }

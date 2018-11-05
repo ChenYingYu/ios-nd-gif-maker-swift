@@ -15,7 +15,7 @@ class GifEditorViewController: UIViewController {
     var gif: Gif?
     
     @IBAction func presentPreview(_ sender: Any) {
-        guard let previewVC = storyboard?.instantiateViewController(withIdentifier: "PreviewViewController") as? PreviewViewController else {
+        guard let previewVC = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "PreviewViewController") as? PreviewViewController else {
             return
         }
         self.gif?.caption = self.captionTextField.text
@@ -29,9 +29,7 @@ class GifEditorViewController: UIViewController {
         }
         let newGif = Gif(url: gifURL, videoURL: sourceFileURL, caption: self.captionTextField.text)
         previewVC.gif = newGif
-        
-        self.navigationController?.present(previewVC, animated: true, completion: nil)
-        
+        self.navigationController?.pushViewController(previewVC, animated: true)
     }
     
     override func viewWillAppear(_ animated: Bool) {

@@ -91,11 +91,11 @@
 			isa = PBXGroup;
 			children = (
 				E79ECEE22189955A002F1E2F /* WelcomeViewController.swift */,
+				E7E9BCE6218C435A00B99B70 /* SavedGifsViewController.swift */,
 				E79ECEE42189956D002F1E2F /* GifEditorViewController.swift */,
 				E79ECEE621899579002F1E2F /* PreviewViewController.swift */,
 				E79ECEE8218999EF002F1E2F /* UIViewController+Record.swift */,
 				E71D4A542189AFC400230E2A /* UIImage+Gif.swift */,
-				E7E9BCE6218C435A00B99B70 /* SavedGifsViewController.swift */,
 				E7E9BCEA218C4BEE00B99B70 /* GifCell.swift */,
 			);
 			name = "View Controllers";

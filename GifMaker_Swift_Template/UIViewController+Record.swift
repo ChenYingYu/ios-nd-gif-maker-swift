@@ -194,7 +194,7 @@ extension UIViewController: UIImagePickerControllerDelegate {
     }
     
     func displayGIF(gif: Gif) {
-        guard let gifEditorVC = storyboard?.instantiateViewController(withIdentifier: "GifEditorViewController") as? GifEditorViewController else {
+        guard let gifEditorVC = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "GifEditorViewController") as? GifEditorViewController else {
             return
         }
         gifEditorVC.gif = gif

@@ -8,7 +8,7 @@
 
 import UIKit
 
-protocol PreviewViewControllerDelegate {
+protocol PreviewViewControllerDelegate: class {
     func previewVC(preview: UIViewController, didSaveGif gif: Gif)
 }
 
@@ -16,6 +16,7 @@ class PreviewViewController: UIViewController {
     
     @IBOutlet weak var previewImageView: UIImageView!
     var gif: Gif?
+    var previewDelegate: PreviewViewControllerDelegate?
     
     @IBAction func shareGif(_ sender: UIButton) {
         guard let gifURL = self.gif?.url else {
@@ -37,7 +38,13 @@ class PreviewViewController: UIViewController {
     }
     
     @IBAction func createAndSave(_ sender: UIButton) {
-        popToRootViewController()
+        if let savedVC = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "SavedGifsViewController") as? SavedGifsViewController {
+            self.previewDelegate = savedVC
+        }
+        if let gif = self.gif, self.previewDelegate != nil {
+            self.previewDelegate?.previewVC(preview: self, didSaveGif: gif)
+        }
+        self.navigationController?.popToRootViewController(animated: true)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -48,6 +55,7 @@ class PreviewViewController: UIViewController {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
+        
     }
     
 
@@ -60,5 +68,4 @@ class PreviewViewController: UIViewController {
         // Pass the selected object to the new view controller.
     }
     */
-
 }
