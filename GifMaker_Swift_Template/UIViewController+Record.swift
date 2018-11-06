@@ -29,7 +29,7 @@ extension UIViewController {
                 self?.launchVideoCamera()
             }
             let chooseFromExisting = UIAlertAction(title: "Choose from Existing", style: UIAlertActionStyle.default) { [weak self] (action) in
-//                self?.launchPhotoLibrary()
+                self?.launchPhotoLibrary()
             }
             let cancel = UIAlertAction(title: "Cancel", style: UIAlertActionStyle.cancel, handler: nil)
             newGifActionSheet.addAction(recordVideo)
@@ -52,6 +52,10 @@ extension UIViewController {
         recordVideoController.delegate = self
         // present controller
         self.present(recordVideoController, animated: true, completion: nil)
+    }
+    
+    func launchPhotoLibrary() {
+        self.present(pickerController(source: UIImagePickerControllerSourceType.photoLibrary), animated: true, completion: nil)
     }
     
     // MARK:  - Utils
