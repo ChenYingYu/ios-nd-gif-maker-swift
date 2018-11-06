@@ -38,13 +38,13 @@ class PreviewViewController: UIViewController {
     }
     
     @IBAction func createAndSave(_ sender: UIButton) {
-        if let savedVC = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "SavedGifsViewController") as? SavedGifsViewController {
+        if let savedVC = self.navigationController?.childViewControllers[0] as? SavedGifsViewController {
             self.previewDelegate = savedVC
         }
         if let gif = self.gif, self.previewDelegate != nil {
             self.previewDelegate?.previewVC(preview: self, didSaveGif: gif)
+            self.navigationController?.popToRootViewController(animated: true)
         }
-        self.navigationController?.popToRootViewController(animated: true)
     }
     
     override func viewWillAppear(_ animated: Bool) {

@@ -12,7 +12,6 @@ class SavedGifsViewController: UIViewController {
     
     var savedGifs = [Gif]()
     let cellMargin: CGFloat = 12.0
-    let previewVC = PreviewViewController()
     @IBOutlet weak var gifCollectionView: UICollectionView!
     @IBOutlet weak var emptyView: UIStackView!
     
